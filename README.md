@@ -2,7 +2,7 @@
 
 ### Autor: Jonay Suárez Ramírez
 
-La aplicación realizada es una versión del juego clásico Pong.
+La aplicación realizada es una versión del juego clásico Pong usando Processing.
 
 Decidí añadir unas pequeñas instrucciones iniciales y botón para comenzar debido a que al iniciar directamente podría ser confuso la primera vez y tomar por sorpresa al jugador 1.
 
