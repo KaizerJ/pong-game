@@ -28,7 +28,7 @@ int bar2x;
 int bar2y;
 
 // bar step size
-int barStep = 15;
+int barStep = 5;
 
 
 // scores
@@ -37,6 +37,10 @@ int score2;
 
 //sounds
 SoundFile winSound, reboundSound, barReboundSound;
+
+//keyStates
+// w, s, UP, DOWN
+boolean[] keysPressed = {false, false, false, false};
 
 void setup(){
   size(500,500);
@@ -51,9 +55,23 @@ void setup(){
   score1 = 0;
   score2 = 0;
   
+  fill(0,0,0);
+  textAlign(CENTER, CENTER);
+  textSize(18);
+  text("Pulse ENTER para empezar", width/2, height/2);
+  fill(96);
+  text("Controles:\n Jugador 1: w - subir y s - bajar \n Jugador 2: flecha arriba y flecha abajo", width/2, height/2 + 100);
+  while(true){
+    if(keyPressed && key == ENTER) break;
+    noLoop();
+  }
+  loop();
+  fill(255);
+  
   winSound = new SoundFile ( this , "./winSound.wav" ) ;
   reboundSound = new SoundFile ( this , "./reboundSound.wav" ) ;
   barReboundSound = new SoundFile ( this , "./barReboundSound.wav" ) ;
+  
 }
 
 
@@ -69,14 +87,14 @@ void draw(){
   
   // checks if ball hit player's 1 bar
   if( bx - bradius/2 <= bar1x + barLengthx && (by >= bar1y && by <= bar1y + barLengthy)){
-    mx = -mx;
+    mx = mx < 0? -mx : mx;
     bx += mx;
     thread("SuenaReboundBar");
   }
   
   // checks if ball hit player's 2 bar
   if( bx + bradius/2 >= bar2x && (by >= bar2y && by <= bar2y + barLengthy)){
-    mx = -mx;
+    mx = mx > 0? -mx : mx;
     bx += mx;
     thread("SuenaReboundBar");
   }
@@ -97,17 +115,35 @@ void draw(){
     delay(100);
   }
   
+  // check y borders rebounds
   if(by + bradius/2 >= yMaxLimit){
     my = -my;
-    by = yMaxLimit - bradius;
+    by = yMaxLimit - bradius - 2;
     thread("SuenaRebote");
   }
   
   // check y borders rebounds
   if(by - bradius/2 <= yMinLimit){
     my = -my;
-    by = yMinLimit + bradius;
+    by = yMinLimit + bradius + 2;
     thread("SuenaRebote");
+  }
+  
+  // update bars pos
+  if( keysPressed[0] && bar1y > 0){
+    bar1y = bar1y - barStep;
+  }
+  
+  if( keysPressed[1] && bar1y < yMaxLimit - barLengthy){
+    bar1y = bar1y + barStep;
+  }
+  
+  if( keysPressed[2] && bar2y > 0){
+    bar2y = bar2y - barStep;
+  }
+  
+  if( keysPressed[3] && bar2y < yMaxLimit - barLengthy){
+    bar2y = bar2y + barStep;
   }
   
   // update ball position
@@ -123,6 +159,10 @@ void reset(){
   mx = -3;
   my = 3*random(-1, 1);
   
+  while(abs(my) < 0.7){
+    my = 3*random(-1, 1);
+  }
+  
   bar1x = xMinLimit + 10;
   bar1y = ((yMaxLimit - yMinLimit) / 2) - barLengthy/2;
   
@@ -131,22 +171,41 @@ void reset(){
 }
 
 void keyPressed(){
-  if(key == 'w' && bar1y > 0){
-    bar1y = bar1y - barStep;
+  if(key == 'w'){
+    keysPressed[0] = true;
   }
   
-  if(key == 's' && bar1y < yMaxLimit - barLengthy){
-    bar1y = bar1y + barStep;
+  if(key == 's'){
+    keysPressed[1] = true;
   }
   
-  if(keyCode == UP && bar2y > 0){
-    bar2y = bar2y - barStep;
+  if(keyCode == UP){
+    keysPressed[2] = true;
   }
   
-  if(keyCode == DOWN && bar2y < yMaxLimit - barLengthy){
-    bar2y = bar2y + barStep;
+  if(keyCode == DOWN){
+    keysPressed[3] = true;
   }
 }
+
+void keyReleased(){
+  if(key == 'w'){
+    keysPressed[0] = false;
+  }
+  
+  if(key == 's'){
+    keysPressed[1] = false;
+  }
+  
+  if(keyCode == UP){
+    keysPressed[2] = false;
+  }
+  
+  if(keyCode == DOWN){
+    keysPressed[3] = false;
+  }
+}
+  
 
 void SuenaRebote( ){
   reboundSound.play();
